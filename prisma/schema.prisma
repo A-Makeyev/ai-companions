@@ -1,23 +1,43 @@
-// npm i -g neonctl
-// neonctl auth
+// https://tidbcloud.com
 // npm i -D prisma   
 // npm i @prisma/client
 // npx prisma init
 // npx prisma generate
 // npx prisma db push 
 // npx prisma studio
+// node scripts/seed.ts
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
 model Category {
-  id String @id @default(uuid())
-  name String
+  id         String      @id @default(uuid())
+  name       String
+  companions Companion[]
+}
+
+model Companion {
+  id           String   @id @default(uuid())
+  userId       String
+  userName     String
+  src          String
+  seed         String   @db.Text
+  name         String   @db.Text
+  instructions String   @db.Text
+  description  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  category     Category @relation(fields: [categoryId], references: [id])
+  categoryId   String
+
+  @@index([categoryId])
+  @@fulltext([name])
 }
