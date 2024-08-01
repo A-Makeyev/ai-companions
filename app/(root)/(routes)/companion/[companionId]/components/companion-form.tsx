@@ -1,6 +1,7 @@
 "use client"
 
 import * as z from "zod"
+import axios from "axios"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Category, Companion } from "@prisma/client"
@@ -8,10 +9,13 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ImageUpload } from "@/components/image-upload"
 import { Separator } from "@/components/ui/separator"
+import { useToast } from "@/components/ui/use-toast"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Wand2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+
 
 
 const PREAMBLE = `
@@ -61,6 +65,9 @@ const formSchema = z.object({
 export const CompanionForm = ({
     initialData, categories
 }: CompanionFormProps) => {
+    const router = useRouter()
+    const { toast } = useToast()
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: initialData || {
@@ -75,14 +82,32 @@ export const CompanionForm = ({
 
     const isLoading = form.formState.isSubmitting
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const createCompanion = async (values: z.infer<typeof formSchema>) => {
+        try {
+            if (initialData) {
+                await axios.patch(`/api/companion/${initialData.id}`, values)
+            } else {
+                await axios.post('/api/companion', values)
+            }
 
+            toast({
+                description: `${values.name} companion was ${initialData ? 'updated' : 'created'}`
+            })
+
+            router.refresh()
+            router.push('/')
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                description: 'Something went wrong'
+            })
+        }
     }
 
     return (
         <div className="h-full p-4 space-y-2 max-w-3xl mx-auto">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pb-10">
+                <form onSubmit={form.handleSubmit(createCompanion)} className="space-y-8 pb-10">
                     <div className="space-y-2 w-full">
                         <div>
                             <h3 className="text-lg font-medium">
