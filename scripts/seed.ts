@@ -14,8 +14,9 @@ async function main() {
                 { name: 'Scientists' },
             ]
         })
+        console.error('✔️  Data Created')
     } catch (error) {
-        console.error('Error seeding default categories', error)
+        console.error('❌  Error seeding default categories', error)
     } finally {
         await db.$disconnect()
     }

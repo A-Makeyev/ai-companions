@@ -1,18 +1,18 @@
 "use client"
 
+import qs from "query-string"
 import { cn } from "@/lib/utils"
 import { Category } from "@prisma/client"
 import { useRouter, useSearchParams } from "next/navigation"
-import qs from "query-string"
 
 
-interface CategoriesProps {
+interface CategoryProps {
     data: Category[]
 }
 
 export const Categories = ({
     data
-}: CategoriesProps) => {
+}: CategoryProps) => {
     const router = useRouter()
     const searchParams = useSearchParams()
     const categoryId = searchParams.get('categoryId')
