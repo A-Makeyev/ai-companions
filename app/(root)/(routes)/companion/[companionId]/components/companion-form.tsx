@@ -91,7 +91,7 @@ export const CompanionForm = ({
             }
 
             toast({
-                description: `${values.name} companion was ${initialData ? 'updated' : 'created'}`
+                description: `"${values.name}" companion was ${initialData ? 'updated' : 'created'}`
             })
 
             router.refresh()
@@ -99,7 +99,7 @@ export const CompanionForm = ({
         } catch (error) {
             toast({
                 variant: 'destructive',
-                description: 'Something went wrong'
+                description: `Something went wrong! ${error}`
             })
         }
     }

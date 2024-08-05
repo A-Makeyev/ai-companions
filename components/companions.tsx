@@ -54,17 +54,21 @@ export const Companions = ({
                             <p className="font-bold">
                                 {item.name}
                             </p>
-                            <p className="text-s">
+                            <p className="text-xs">
                                 {item.description}
                             </p>
                         </CardHeader>
-                        <CardFooter className="flex items-center justify-between text-s text-muted-foreground">
+                        <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
                             <p className="lowercase">
                                 @{item.userName}
                             </p>
                             <div className="flex items-center">
-                                <MessageSquare className="w-3 h-3 mr-1" />
-                                {item._count.messages > 0 && item._count.messages}
+                            {item._count.messages > 0 && (
+                                <div>
+                                    <MessageSquare className="w-4 h-4 mr-2 mt-1" /> 
+                                    {item._count.messages}
+                                </div>
+                            )}
                             </div>
                         </CardFooter>
                     </Link>
