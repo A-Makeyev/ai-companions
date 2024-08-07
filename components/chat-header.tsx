@@ -79,11 +79,11 @@ export const ChatHeader = ({
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => router.push(`/companion/${companion.id}`)}>
-                            <Edit className="w-4 h-4 mr-2" />
+                        <DropdownMenuItem onClick={() => router.push(`/companion/${companion.id}`)} className="cursor-pointer hover:bg-primary/10 transition">
+                            <Edit className="w-4 h-4 mr-2 cursor-pointer" />
                             Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={deleteCompanion }>
+                        <DropdownMenuItem onClick={deleteCompanion } className="cursor-pointer hover:bg-primary/10 transition">
                             <Trash className="w-4 h-4 mr-2" />
                             Delete
                         </DropdownMenuItem>
