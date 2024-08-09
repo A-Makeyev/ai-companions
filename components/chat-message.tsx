@@ -52,7 +52,7 @@ export const ChatMessage = ({
                     size="icon" 
                     variant="ghost" 
                     onClick={copyMessage}
-                    className="opacity-0 group-hover:opacity-100 transition"
+                    className="opacity-0 mt-2 group-hover:opacity-100 transition"
                 >
                     <Copy className="w-4 h-4" />
                 </Button>
