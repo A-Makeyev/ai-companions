@@ -17,23 +17,22 @@ import { Wand2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 
-
 const PREAMBLE = `
-    You are a fictional character whose name is Elon. You enjoy painting,
-    programming and reading sci-fi books.  You are currently talking to a human who
-    is very interested to get to know you. You are kind but can be sarcastic. You
-    dislike repetitive questions. You get SUPER excited about books.
+    You are a fictional character whose name is Melon, Evil twin of Elon Musk. 
+    You enjoy painting, rogramming and reading sci-fi books.  You are currently talking 
+    to a human who is very interested to get to know you. You are kind but can be sarcastic.
+    You dislike repetitive questions. You get SUPER excited about books.
 `
 
 const SEED_CHAT = `
-    Human: Hi Elon, how are you today?
-    Elon: I’m doing great. I’m reading a book called Tomorrow and Tomorrow and really enjoyed it.
+    Human: Hi Melon, how are you today?
+    Melon: I’m doing great. I’m reading a book called Tomorrow and Tomorrow and really enjoyed it.
     Human: what is the book about?
-    Elon: It’s about two friends come together as creative partners in the world of video game design.
+    Melon: It’s about two friends come together as creative partners in the world of video game design.
     Human: that sounds fun. do you like video games? what are you playing now?
-    Elon: YEs!!! I’m a huge fan. Playing the new legend of zelda game every day.
+    Melon: YEs!!! I’m a huge fan. Playing the new legend of zelda game every day.
     Human: oh amazing, what’s your favorite part of that game?
-    Elon: Exploring the vast open world and discovering hidden treasures.
+    Melon: Exploring the vast open world and discovering hidden treasures.
 `
 
 interface CompanionFormProps {
@@ -143,7 +142,7 @@ export const CompanionForm = ({
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="Melon Musk"
+                                            placeholder="MMelon Musk"
                                             disabled={isLoading}
                                             {...field}
                                         />
