@@ -10,8 +10,13 @@ import { SendHorizonal } from "lucide-react"
 interface ChatFormProps {
     input: string
     isLoading: boolean
-    handleInputChange: (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => void
-    onSubmit: (e: FormEvent<HTMLFormElement>, chatRequestOptions?: ChatRequestOptions | undefined) => void
+    handleInputChange: (
+        e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
+    ) => void
+    onSubmit: (
+        e: FormEvent<HTMLFormElement>,
+        chatRequestOptions?: ChatRequestOptions | undefined
+    ) => void
 }
 
 export const ChatForm = ({

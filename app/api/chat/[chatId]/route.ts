@@ -1,15 +1,15 @@
-import prismadb from '@/lib/prismadb'
-import { LangChainAdapter } from 'ai'
-import { currentUser } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/server'
-import { StringOutputParser } from '@langchain/core/output_parsers'
-import { MemoryManager } from '@/lib/memory'
-import { rateLimit } from '@/lib/rate-limit'
+import prismadb from "@/lib/prismadb"
+import { LangChainAdapter } from "ai"
+import { NextResponse } from "next/server"
 import { ChatGroq } from "@langchain/groq"
+import { currentUser } from "@clerk/nextjs/server"
+import { StringOutputParser } from "@langchain/core/output_parsers"
+import { MemoryManager } from "@/lib/memory"
+import { rateLimit } from "@/lib/rate-limit"
 import { ConsoleCallbackHandler } from "@langchain/core/tracers/console"
-// import { checkAiRequestsCount, decreaseAiRequestsCount } from '@/lib/user-settings'
-// import { checkSubscription } from '@/lib/subscription'
-// import dotenv from 'dotenv'
+// import { checkAiRequestsCount, decreaseAiRequestsCount } from "@/lib/user-settings'
+// import { checkSubscription } from "@/lib/subscription'
+// import dotenv from "dotenv'
 
 // dotenv.config({ path: `.env` })
 
@@ -69,7 +69,7 @@ export async function POST(
         const companionKey = {
             userId: user.id,
             companionId: companion.id,
-            modelName: 'gpt-3.5-turbo',
+            modelName: 'mixtral-8x7b-32768'
         }
 
         const memoryManager = await MemoryManager.getInstance()
@@ -94,9 +94,10 @@ export async function POST(
             relevantHistory = similarDocs.map((doc) => doc.pageContent).join('\n')
         }
 
+        // https://console.groq.com/docs/models
         const model = new ChatGroq({
             temperature: 0,
-            model: "mixtral-8x7b-32768",
+            model: 'mixtral-8x7b-32768',
             apiKey: process.env.GROQ_API_KEY,
             callbacks: [new ConsoleCallbackHandler()]
         })
@@ -104,28 +105,25 @@ export async function POST(
         // Turn verbose on for debugging
         model.verbose = true
 
-        const resp = await model.invoke(`
-            ${companion.instructions}
-
-            Try to give responses that are straight to the point. 
-            Generate sentences without a prefix of who is speaking. Don't use ${companion.name} prefix.
-            Below are relevant details about ${companion.name}'s past and the conversation you are in.
-
-            ${relevantHistory}
-
-            ${recentChatHistory}\n${companion.name}:
-        `).catch(console.error)
+        const resp = await model.invoke([
+            [
+              "system",
+              `${companion.instructions} Try to give responses that are straight to the point. 
+                Generate sentences without a prefix of who is speaking. Don't use ${companion.name} prefix.
+                Below are relevant details about ${companion.name}'s past and the conversation you are in.
+                ${companion.description}`,
+            ],
+            [
+                "human", 
+                `${prompt}\n${recentChatHistory}`
+            ],
+          ]).catch(console.error)
 
         const content = resp?.content as string
 
         if (!content && content?.length < 1) {
             return new NextResponse('Content not found', { status: 404 })
         }
-
-        var Readable = require('stream').Readable
-        let s = new Readable()
-        s.push(content)
-        s.push(null)
 
         memoryManager.writeToHistory('' + content, companionKey)
 
@@ -150,42 +148,14 @@ export async function POST(
         // }
 
         const parser = new StringOutputParser()
-        const stream = await model.pipe(parser).stream(prompt)
+        const stream = await model.pipe(parser).stream(content)
 
+        console.log('*'.repeat(150))
+        console.log(content)
+        console.log('*'.repeat(150))
+        
         return LangChainAdapter.toDataStreamResponse(stream)
-        // return LangChainAdapter.toDataStreamResponse(s)
     } catch (error) {
         return new NextResponse('Internal Error', { status: 500 })
     }
 }
-
-
-// const Groq = require('groq-sdk');
-
-// const groq = new Groq();
-// async function main() {
-//   const chatCompletion = await groq.chat.completions.create({
-//     "messages": [
-//       {
-//         "role": "system",
-//         "content": "hello i am asd"
-//       },
-//       {
-//         "role": "user",
-//         "content": "who are you\n"
-//       }
-//     ],
-//     "model": "llama3-8b-8192",
-//     "temperature": 1,
-//     "max_tokens": 1024,
-//     "top_p": 1,
-//     "stream": true,
-//     "stop": null
-//   });
-
-//   for await (const chunk of chatCompletion) {
-//     process.stdout.write(chunk.choices[0]?.delta?.content || '');
-//   }
-// }
-
-// main();

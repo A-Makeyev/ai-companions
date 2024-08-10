@@ -1,6 +1,7 @@
 import prismadb from "@/lib/prismadb"
 import { currentUser } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import { revalidatePath } from 'next/cache'
 
 
 export async function POST(req: Request) {
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
             }
         })
         
+        revalidatePath('/')
         return NextResponse.json(companion)
     } catch (error) {
         console.log('[ COMPANION POST ]', error)
