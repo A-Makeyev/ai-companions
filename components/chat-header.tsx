@@ -60,7 +60,7 @@ export const ChatHeader = ({
                         <div className="flex items-center text-xs text-muted-foreground">
                             {companion._count.messages > 0 && (
                                 <div>
-                                    <MessageSquare className="w-4 h-4 mr-2 mt-1" /> 
+                                    <MessageSquare className="w-4 h-4 mr-1 inline-block" /> 
                                     {companion._count.messages}
                                 </div>
                             )}

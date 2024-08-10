@@ -65,7 +65,7 @@ export const Companions = ({
                             <div className="flex items-center">
                             {item._count.messages > 0 && (
                                 <div>
-                                    <MessageSquare className="w-4 h-4 mr-2 mt-1" /> 
+                                    <MessageSquare className="w-4 h-4 mr-1 inline-block" /> 
                                     {item._count.messages}
                                 </div>
                             )}

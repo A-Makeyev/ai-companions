@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 import { StringOutputParser } from '@langchain/core/output_parsers'
 import { MemoryManager } from '@/lib/memory'
 import { rateLimit } from '@/lib/rate-limit'
-import { ChatGroq } from "@langchain/groq"
+import { ChatOpenAI } from '@langchain/openai'
 import { ConsoleCallbackHandler } from "@langchain/core/tracers/console"
 // import { checkAiRequestsCount, decreaseAiRequestsCount } from '@/lib/user-settings'
 // import { checkSubscription } from '@/lib/subscription'
@@ -94,10 +94,9 @@ export async function POST(
             relevantHistory = similarDocs.map((doc) => doc.pageContent).join('\n')
         }
 
-        const model = new ChatGroq({
-            temperature: 0,
-            model: "mixtral-8x7b-32768",
-            apiKey: process.env.GROQ_API_KEY,
+        const model = new ChatOpenAI({
+            openAIApiKey: process.env.OPENAI_API_KEY,
+            modelName: 'gpt-3.5-turbo',
             callbacks: [new ConsoleCallbackHandler()]
         })
 
@@ -158,34 +157,3 @@ export async function POST(
         return new NextResponse('Internal Error', { status: 500 })
     }
 }
-
-
-// const Groq = require('groq-sdk');
-
-// const groq = new Groq();
-// async function main() {
-//   const chatCompletion = await groq.chat.completions.create({
-//     "messages": [
-//       {
-//         "role": "system",
-//         "content": "hello i am asd"
-//       },
-//       {
-//         "role": "user",
-//         "content": "who are you\n"
-//       }
-//     ],
-//     "model": "llama3-8b-8192",
-//     "temperature": 1,
-//     "max_tokens": 1024,
-//     "top_p": 1,
-//     "stream": true,
-//     "stop": null
-//   });
-
-//   for await (const chunk of chatCompletion) {
-//     process.stdout.write(chunk.choices[0]?.delta?.content || '');
-//   }
-// }
-
-// main();

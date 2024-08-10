@@ -142,7 +142,7 @@ export const CompanionForm = ({
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="MMelon Musk"
+                                            placeholder="Melon Musk"
                                             disabled={isLoading}
                                             {...field}
                                         />
@@ -240,7 +240,7 @@ export const CompanionForm = ({
                                     />
                                 </FormControl>
                                 <FormDescription>
-                                    Describe in details your companion's backstory and relevant information
+                                    Describe in details your companion&apos;s backstory and relevant information
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -262,7 +262,7 @@ export const CompanionForm = ({
                                     />
                                 </FormControl>
                                 <FormDescription>
-                                    Describe in details your companion's backstory and relevant information
+                                    Describe in details your companion&apos;s backstory and relevant information
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
