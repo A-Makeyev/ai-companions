@@ -35,8 +35,8 @@ export const ChatHeader = ({
                 description: `Deleted "${companion.name}" successfully!`
             })
 
-            router.refresh()
             router.push('/')
+            router.refresh()
         } catch (error) {
             toast({
                 variant: 'destructive',
@@ -49,7 +49,7 @@ export const ChatHeader = ({
         <div className="flex w-full justify-between items-center border-b border-primary/10 pb-4">
             <div className="flex gap-x-2 items-center">
                 <Button onClick={() => router.back()} size="icon" variant="ghost">
-                    <ChevronLeft className="h-8 w-8" />
+                    <ChevronLeft className="h-8 w-8 hover:scale-125 transition" />
                 </Button>
                 <BotAvatar src={companion.src} />
                 <div className="flex flex-col gap-y-1">
@@ -75,7 +75,7 @@ export const ChatHeader = ({
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button size="icon" variant="secondary">
-                            <MoreVertical />
+                            <MoreVertical className="hover:scale-125 transition" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">

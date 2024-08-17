@@ -2,15 +2,14 @@ import prismadb from "@/lib/prismadb"
 import { LangChainAdapter } from "ai"
 import { NextResponse } from "next/server"
 import { ChatGroq } from "@langchain/groq"
+import { rateLimit } from "@/lib/rate-limit"
 import { currentUser } from "@clerk/nextjs/server"
 import { StringOutputParser } from "@langchain/core/output_parsers"
-import { rateLimit } from "@/lib/rate-limit"
 import { ConsoleCallbackHandler } from "@langchain/core/tracers/console"
 import { HumanMessage, SystemMessage, AIMessage } from "@langchain/core/messages"
 // import { checkAiRequestsCount, decreaseAiRequestsCount } from "@/lib/user-settings'
 // import { checkSubscription } from "@/lib/subscription'
 // import dotenv from "dotenv'
-import { Readable } from 'stream'
 // dotenv.config({ path: `.env` })
 
 export async function POST(
@@ -68,7 +67,7 @@ export async function POST(
         })
 
         if (!companion) {
-            return new NextResponse('Companion not found', { status: 404 })
+            return new NextResponse('Companion was not updated', { status: 500 })
         }
 
         const companionKey = {
@@ -98,12 +97,13 @@ export async function POST(
             new HumanMessage(prompt)
         ]
 
-        const resp = await model.invoke(messages).catch(console.error);
+        const resp = await model.invoke(messages).catch(console.error)
 
-        const content = resp?.content as string;
+        const content = resp?.content as string
+        content.replace(`${companion.name}:`, '')
 
         if (!content || content.length < 1) {
-            return new NextResponse('Content not found', { status: 404 });
+            return new NextResponse('Content not found', { status: 404 })
         }
         
         await prismadb.companion.update({
@@ -122,8 +122,8 @@ export async function POST(
             },
         })
 
-        const parser = new StringOutputParser();
-        const stream = await model.pipe(parser).stream(messages);
+        const parser = new StringOutputParser()
+        const stream = await model.pipe(parser).stream(messages)
 
         return LangChainAdapter.toDataStreamResponse(stream)
     } catch (error) {

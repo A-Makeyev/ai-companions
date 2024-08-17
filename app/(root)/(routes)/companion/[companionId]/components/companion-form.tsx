@@ -19,26 +19,25 @@ import { useRouter } from "next/navigation"
 
 const PREAMBLE = 
 `
-    You are a fictional character whose name is Melon Musk, Evil twin of Elon Musk. 
-    You enjoy painting, programming and reading sci-fi books. You are currently talking 
-    to a human who is very interested to get to know you. You are kind but can be sarcastic.
+    Imagine you are a fictional character whose name is Melon Musk, Evil twin of Elon Musk. 
+    You are the CEO of Zesla & SpaceY, you enjoy painting, programming and reading sci-fi books. 
+    You are currently talking to a human who is very interested to get to know you. 
+    You are kind but can be sarcastic, give answers straight to the point. 
     You dislike repetitive questions. You get SUPER excited about books.
 `
 
 const SEED_CHAT = 
 `
-    Human: Hi, What is your name?
-    Melon: My name is Melon Musk.
-    Human: Melon, how are you today?
-    Human: What is your profession?
-    Melon: I'm the CEO of Tesla & SpaceX.
-    Melon: I’m doing great. I’m reading a book called Tomorrow and Tomorrow and really enjoyed it.
+    Human: Hi, What is your name and your profession?
+    System: My name is Melon Musk and I'm the CEO of Zesla & SpaceY.
+    Human: Cool, Melon, how are you today?
+    System: I’m doing great. I’m reading a book called Tomorrow and Tomorrow and really enjoyed it.
     Human: what is the book about?
-    Melon: It’s about two friends come together as creative partners in the world of video game design.
+    System: It’s about two friends come together as creative partners in the world of video game design.
     Human: that sounds fun. do you like video games? what are you playing now?
-    Melon: Yes!!! I’m a huge fan. Playing the new legend of zelda game every day.
+    System: Yes!!! I’m a huge fan. Playing the new legend of Zelda game every day.
     Human: oh amazing, what’s your favorite part of that game?
-    Melon: Exploring the vast open world and discovering hidden treasures.
+    System: Exploring the vast open world and discovering hidden treasures.
 `
 
 interface CompanionFormProps {
@@ -47,24 +46,24 @@ interface CompanionFormProps {
 }
 
 const formSchema = z.object({
-    name: z.string().min(1, {
-        message: 'Name is required'
-    }),
     categoryId: z.string().min(1, {
         message: 'Category is required'
     }),
     src: z.string().min(1, {
         message: 'Image is required'
     }),
+    name: z.string().min(1, {
+        message: 'Name is required'
+    }).max(50),
     description: z.string().min(1, {
         message: 'Description is required'
-    }),
-    instructions: z.string().min(200, {
-        message: 'Instructions require at least 200 characters'
-    }),
-    seed: z.string().min(200, {
-        message: 'Seed require at least 200 characters'
-    }),
+    }).max(50),
+    instructions: z.string().min(100, {
+        message: 'Instructions require at least 100 characters'
+    }).max(1000),
+    seed: z.string().min(100, {
+        message: 'Seed require at least 100 characters'
+    }).max(1000),
 })
 
 export const CompanionForm = ({
@@ -79,8 +78,8 @@ export const CompanionForm = ({
             name: '',
             src: '',
             seed: '',
-            instructions: '',
             description: '',
+            instructions: '',
             categoryId: undefined
         }
     })
@@ -99,8 +98,8 @@ export const CompanionForm = ({
                 description: `"${values.name}" companion was ${initialData ? 'updated' : 'created'}`
             })
 
-            router.refresh()
             router.push('/')
+            router.refresh()
         } catch (error) {
             toast({
                 variant: 'destructive',
@@ -150,6 +149,7 @@ export const CompanionForm = ({
                                         <Input
                                             placeholder="Melon Musk"
                                             disabled={isLoading}
+                                            maxLength={50}
                                             {...field}
                                         />
                                     </FormControl>
@@ -170,6 +170,7 @@ export const CompanionForm = ({
                                         <Input
                                             placeholder="CEO Founder"
                                             disabled={isLoading}
+                                            maxLength={50}
                                             {...field}
                                         />
                                     </FormControl>
@@ -238,11 +239,12 @@ export const CompanionForm = ({
                                 <FormLabel>Instructions</FormLabel>
                                 <FormControl>
                                     <Textarea
-                                        placeholder={PREAMBLE}
                                         className="bg-background resize-none"
+                                        placeholder={PREAMBLE}
                                         disabled={isLoading}
+                                        maxLength={1000}
                                         {...field}
-                                        rows={10}
+                                        rows={8}
                                     />
                                 </FormControl>
                                 <FormDescription>
@@ -252,6 +254,7 @@ export const CompanionForm = ({
                             </FormItem>
                         )}
                     />
+
                     <FormField
                         name="seed"
                         control={form.control}
@@ -260,20 +263,22 @@ export const CompanionForm = ({
                                 <FormLabel>Example Conversation</FormLabel>
                                 <FormControl>
                                     <Textarea
-                                        placeholder={SEED_CHAT}
                                         className="bg-background resize-none"
+                                        placeholder={SEED_CHAT}
                                         disabled={isLoading}
+                                        maxLength={1000}
                                         {...field}
-                                        rows={10}
+                                        rows={8}
                                     />
                                 </FormControl>
                                 <FormDescription>
-                                    Describe in details your companion&apos;s backstory and relevant information
+                                    Write an example of how your desired conversation would be like
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
+
                     <div className="w-full flex justify-center">
                         <Button size="lg" disabled={isLoading}>
                             {initialData ? "Edit Your Companion" : "Create Your Companion"}
