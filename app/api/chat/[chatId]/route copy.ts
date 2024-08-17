@@ -1,16 +1,17 @@
-import prismadb from '@/lib/prismadb'
-import { LangChainAdapter } from 'ai'
-import { currentUser } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/server'
-import { StringOutputParser } from '@langchain/core/output_parsers'
-import { MemoryManager } from '@/lib/memory'
-import { rateLimit } from '@/lib/rate-limit'
-import { ChatOpenAI } from '@langchain/openai'
+import prismadb from "@/lib/prismadb"
+import { LangChainAdapter } from "ai"
+import { NextResponse } from "next/server"
+import { ChatGroq } from "@langchain/groq"
+import { currentUser } from "@clerk/nextjs/server"
+import { StringOutputParser } from "@langchain/core/output_parsers"
+import { MemoryManager } from "@/lib/memory"
+import { rateLimit } from "@/lib/rate-limit"
 import { ConsoleCallbackHandler } from "@langchain/core/tracers/console"
-// import { checkAiRequestsCount, decreaseAiRequestsCount } from '@/lib/user-settings'
-// import { checkSubscription } from '@/lib/subscription'
-// import dotenv from 'dotenv'
-
+import { HumanMessage, SystemMessage, AIMessage } from "@langchain/core/messages"
+// import { checkAiRequestsCount, decreaseAiRequestsCount } from "@/lib/user-settings'
+// import { checkSubscription } from "@/lib/subscription'
+// import dotenv from "dotenv'
+import { Readable } from 'stream'
 // dotenv.config({ path: `.env` })
 
 export async function POST(
@@ -69,64 +70,74 @@ export async function POST(
         const companionKey = {
             userId: user.id,
             companionId: companion.id,
-            modelName: 'gpt-3.5-turbo',
+            modelName: 'mixtral-8x7b-32768'
         }
 
-        const memoryManager = await MemoryManager.getInstance()
-        const records = await memoryManager.readLatestHistory(companionKey)
+        // const memoryManager = await MemoryManager.getInstance()
+        // const records = await memoryManager.readLatestHistory(companionKey)
 
-        if (records.length === 0) {
-            await memoryManager.seedChatHistory(companion.seed, '\n\n', companionKey)
-        }
+        // if (records.length === 0) {
+        //     await memoryManager.seedChatHistory(companion.seed, '\n\n', companionKey)
+        // }
 
-        await memoryManager.writeToHistory('User: ' + prompt + '\n', companionKey)
-        const recentChatHistory = await memoryManager.readLatestHistory(companionKey)
+        // await memoryManager.writeToHistory('User: ' + prompt + '\n', companionKey)
+        // const recentChatHistory = await memoryManager.readLatestHistory(companionKey)
 
-        // Right now the preamble is included in the similarity search, but that shouldn't be an issue
+        // // Right now the preamble is included in the similarity search, but that shouldn't be an issue
 
-        const similarDocs = await memoryManager.vectorSearch(
-            recentChatHistory,
-            companion_file_name,
-        )
+        // const similarDocs = await memoryManager.vectorSearch(
+        //     recentChatHistory,
+        //     companion_file_name,
+        // )
 
-        let relevantHistory = ''
-        if (!!similarDocs && similarDocs.length !== 0) {
-            relevantHistory = similarDocs.map((doc) => doc.pageContent).join('\n')
-        }
+        // let relevantHistory = ''
+        // if (!!similarDocs && similarDocs.length !== 0) {
+        //     relevantHistory = similarDocs.map((doc) => doc.pageContent).join('\n')
+        // }
 
-        const model = new ChatOpenAI({
-            openAIApiKey: process.env.OPENAI_API_KEY,
-            modelName: 'gpt-3.5-turbo',
+        // https://console.groq.com/docs/models
+        const model = new ChatGroq({
+            temperature: 0,
+            model: 'mixtral-8x7b-32768',
+            apiKey: process.env.GROQ_API_KEY,
             callbacks: [new ConsoleCallbackHandler()]
         })
 
         // Turn verbose on for debugging
         model.verbose = true
 
-        const resp = await model.invoke(`
+        const systemMessage = 
+        `
             ${companion.instructions}
+            Your name is ${companion.name}.
+            ${companion.description}
+        `
 
-            Try to give responses that are straight to the point. 
-            Generate sentences without a prefix of who is speaking. Don't use ${companion.name} prefix.
-            Below are relevant details about ${companion.name}'s past and the conversation you are in.
+        // const messages = [
+        //     new SystemMessage(systemMessage),
+        //     ...recentChatHistory.split('\n').map(message => {
+        //         const [role, content] = message.split(': ');
+        //         return role.toLowerCase() === 'human' 
+        //             ? new HumanMessage(content)
+        //             : new AIMessage(content);
+        //     }),
+        //     new HumanMessage(prompt)
+        // ]
 
-            ${relevantHistory}
+        const messages = [
+            new SystemMessage(systemMessage),
+            new HumanMessage(prompt)
+        ]
 
-            ${recentChatHistory}\n${companion.name}:
-        `).catch(console.error)
+        const resp = await model.invoke(messages).catch(console.error);
 
-        const content = resp?.content as string
+        const content = resp?.content as string;
 
-        if (!content && content?.length < 1) {
-            return new NextResponse('Content not found', { status: 404 })
+        if (!content || content.length < 1) {
+            return new NextResponse('Content not found', { status: 404 });
         }
 
-        var Readable = require('stream').Readable
-        let s = new Readable()
-        s.push(content)
-        s.push(null)
-
-        memoryManager.writeToHistory('' + content, companionKey)
+        //memoryManager.writeToHistory('' + content, companionKey)
 
         await prismadb.companion.update({
             where: {
@@ -148,11 +159,16 @@ export async function POST(
         //   await decreaseAiRequestsCount()
         // }
 
-        const parser = new StringOutputParser()
-        const stream = await model.pipe(parser).stream(prompt)
+        
+          
+        console.log('*'.repeat(150))
+        console.log(content)
+        console.log('*'.repeat(150))
+        
+        const parser = new StringOutputParser();
+        const stream = await model.pipe(parser).stream(messages);
 
         return LangChainAdapter.toDataStreamResponse(stream)
-        // return LangChainAdapter.toDataStreamResponse(s)
     } catch (error) {
         return new NextResponse('Internal Error', { status: 500 })
     }
