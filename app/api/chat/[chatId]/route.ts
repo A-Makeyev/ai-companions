@@ -78,7 +78,7 @@ export async function POST(
 
         // https://console.groq.com/docs/models
         const model = new ChatGroq({
-            temperature: 0,
+            temperature: 0.5,
             model: 'mixtral-8x7b-32768',
             apiKey: process.env.GROQ_API_KEY,
             callbacks: [new ConsoleCallbackHandler()]

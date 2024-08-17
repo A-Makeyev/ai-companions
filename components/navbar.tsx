@@ -2,10 +2,10 @@
 
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { Sparkles } from "lucide-react"
+import { UserButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { MobileSidebar } from "@/components/mobile-sidebar"
-import { UserButton } from "@clerk/nextjs"
-import { Sparkles } from "lucide-react"
 import { Poppins } from "next/font/google"
 import { ModeToggle } from "./mode-toggle"
 
